@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour {
-
-    public static GameManager Instance;
+    public static GameManager Instance; //instance of GameManager class
     public GameBoard gameBoard;
     public enum turn
     {
@@ -15,7 +14,7 @@ public class GameManager : MonoBehaviour {
     {
         nobodyWon,
         somebodyWon,
-        draw
+        deadHeat
     }
     public turn currentTurn;
 
@@ -29,15 +28,16 @@ public class GameManager : MonoBehaviour {
 
     public void Awake()
     {
-
+        //Checking if is only one instance of class
         if (GameManager.Instance == null)
         {
             GameManager.Instance = this;
-            firstPlayerMarker = Field.StateOfField.CROSS;
-            secondPlayerMarker = Field.StateOfField.CIRCLE;
-            currentTurn = turn.firstPlayerTurn;
-            crossCurrentTurnRepresentation.enabled = true;
-            circleCurrentTurnRepresentation.enabled = false;
+            //setting up default parametrs
+            this.firstPlayerMarker = Field.StateOfField.CROSS;
+            this.secondPlayerMarker = Field.StateOfField.CIRCLE;
+            this.currentTurn = turn.firstPlayerTurn;
+            this.crossCurrentTurnRepresentation.enabled = true;
+            this.circleCurrentTurnRepresentation.enabled = false;
         }   
         else
         {
@@ -47,16 +47,16 @@ public class GameManager : MonoBehaviour {
 
     public void RestartGame()
     {
-        Debug.Log("Restart Game");
-        gameBoard.LeftTop.State = Field.StateOfField.EMPTY;
-        gameBoard.MiddleTop.State = Field.StateOfField.EMPTY;
-        gameBoard.RightTop.State = Field.StateOfField.EMPTY;
-        gameBoard.LeftMiddle.State = Field.StateOfField.EMPTY;
-        gameBoard.Center.State = Field.StateOfField.EMPTY;
-        gameBoard.RightMiddle.State = Field.StateOfField.EMPTY;
-        gameBoard.LeftDown.State = Field.StateOfField.EMPTY;
-        gameBoard.MiddleDown.State = Field.StateOfField.EMPTY;
-        gameBoard.RightDown.State = Field.StateOfField.EMPTY;
+        //Setting up all field as empty
+        this.gameBoard.LeftTop.State = Field.StateOfField.EMPTY;
+        this.gameBoard.MiddleTop.State = Field.StateOfField.EMPTY;
+        this.gameBoard.RightTop.State = Field.StateOfField.EMPTY;
+        this.gameBoard.LeftMiddle.State = Field.StateOfField.EMPTY;
+        this.gameBoard.Center.State = Field.StateOfField.EMPTY;
+        this.gameBoard.RightMiddle.State = Field.StateOfField.EMPTY;
+        this.gameBoard.LeftDown.State = Field.StateOfField.EMPTY;
+        this.gameBoard.MiddleDown.State = Field.StateOfField.EMPTY;
+        this.gameBoard.RightDown.State = Field.StateOfField.EMPTY;
     }
 
     //This method checking if someone won game
@@ -111,6 +111,7 @@ public class GameManager : MonoBehaviour {
            gameBoard.RightTop.State != Field.StateOfField.EMPTY)
             return gameResoult.somebodyWon;
 
+        //Checking if is dead-heat
         if (gameBoard.LeftTop.State != Field.StateOfField.EMPTY &&
             gameBoard.MiddleTop.State != Field.StateOfField.EMPTY &&
             gameBoard.RightTop.State != Field.StateOfField.EMPTY &&
@@ -120,30 +121,33 @@ public class GameManager : MonoBehaviour {
             gameBoard.LeftDown.State != Field.StateOfField.EMPTY &&
             gameBoard.MiddleDown.State != Field.StateOfField.EMPTY &&
             gameBoard.RightDown.State != Field.StateOfField.EMPTY)
-            return gameResoult.draw;
+            return gameResoult.deadHeat;
 
         return gameResoult.nobodyWon;
     }
-
+    //Called when field was clicked
     public void FieldWasClicked(Field field)
     {
+        //Checking if state isn't empty
         if (field.State != Field.StateOfField.EMPTY) return;
-        field.State = currentTurn == turn.firstPlayerTurn ? firstPlayerMarker : secondPlayerMarker;
+        //Setting up field state based on current player turn
+        field.State = this.currentTurn == turn.firstPlayerTurn ? firstPlayerMarker : secondPlayerMarker;
         //Checking if someone won
         gameResoult currentGameReoult = someoneWon();
+        //End when somebody won or is dead-heat
         if (currentGameReoult != gameResoult.nobodyWon) endGame(currentGameReoult);
 
         if (currentTurn == turn.firstPlayerTurn)
         {
-            currentTurn = turn.secondPlayerTurn;
-            crossCurrentTurnRepresentation.enabled = false;
-            circleCurrentTurnRepresentation.enabled = true;
+            this.currentTurn = turn.secondPlayerTurn;
+            this.crossCurrentTurnRepresentation.enabled = false;
+            this.circleCurrentTurnRepresentation.enabled = true;
         }
         else
         {
-            currentTurn = turn.firstPlayerTurn;
-            crossCurrentTurnRepresentation.enabled = true;
-            circleCurrentTurnRepresentation.enabled = false;
+            this.currentTurn = turn.firstPlayerTurn;
+            this.crossCurrentTurnRepresentation.enabled = true;
+            this.circleCurrentTurnRepresentation.enabled = false;
         }
     }
 
@@ -156,10 +160,10 @@ public class GameManager : MonoBehaviour {
             string winnerName = currentTurn == turn.firstPlayerTurn ? "First Player" : "Second Player";
             StatementsManager.Instance.ShowStatement(winnerName + " won", "Restart Game", this.RestartGame);
         }
-        else if(currentGameReoult == gameResoult.draw)
+        else if(currentGameReoult == gameResoult.deadHeat)
         {
-            Debug.Log("draw");
-            StatementsManager.Instance.ShowStatement("Draw! Nobody won!", "Restart Game", this.RestartGame);
+            Debug.Log("dead-heat");
+            StatementsManager.Instance.ShowStatement("Dead-heat! Nobody won!", "Restart Game", this.RestartGame);
         }
         
     }
